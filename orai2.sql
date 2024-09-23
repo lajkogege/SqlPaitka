@@ -108,3 +108,67 @@ insert into fajta values ('lazcsillapitó')
 
 select * from fajta
 insert into fajta values ('köptetõ')
+
+select ident_current('fajta')--az utoljára dobott,generált azonosító az adott táblában
+
+--GYÓGYSZER (gyszám, lenevezés, fajta, egys_ár, készlet)
+--késöbb lesz: hatóanyag, vényes_e
+create table GYÓGYSZER (
+gyszám int PRIMARY KEY,
+elenevezés  varchar(40) not null, --kötelezõ értéket adni neki
+fajta int not null,
+vényes_e bit not null,
+foreign key(fajta) references fajta(fajta) --Gyógyszer fajta oszlopa kapcsolatban, idegen kulcsa a fajta tábla fajtával
+)
+
+create table KISZERELÉS
+(
+k_azon int identity(1,1),
+tartalom char(20),
+mennyiség smallint,
+mértékegység char(3) not null
+)
+
+insert into KISZERELÉS values 
+('tabletta', 10, 'db'),
+('tabletta', 30, 'db')
+
+select * from KISZERELÉS
+
+
+--TERMÉK(tkód, gyógyszer, kiszerelés, eár1, eár2, eár3, készlet)
+create table TERMÉK
+(
+tkód int,
+gyógyszer int not null ,
+kiszerelés int not null,
+eár1 money not null,
+eár2 money not null,
+eár3 money not null,
+--készlete nem ennek hanem a lejárattol függõ terméknek lesz
+primary key (tkód),
+foreign key (gyógyszer) references gyógyszer (gyszám),
+--foreign key (kiszerelés) references kiszerelés (k_azon),
+check(eár1>=0),
+check(eár2>=0),
+check(eár3>=0),
+--1 csheck is lehetet volna itt zezzel a feltételel: (eáe>0 and eár2>=0 and eár3>=0)
+
+)
+
+select * from termék
+select * from gyógyszer
+select * from fajta
+select * from KISZERELÉS
+
+
+insert into gyógyszer values (12345, 'Algopyrin', 101, 0);
+
+insert into termék values 
+(0102030405, 12345, 1, 2200, 2200, 0)
+
+insert into termék values 
+(1020304050, 12345, 2, 4400, 4400, 0)
+
+insert into termék values 
+(20405060, 12345, 2, 4400, 4400, -230)
